@@ -1,0 +1,17 @@
+docker_base_dir: "/srv"
+python_requirements:
+  - python-gitlab
+  - docker
+
+host_docker_socket: "/var/run/docker.sock"
+runner_docker_network: gitlab-runner
+
+runner_container_name: gitlab-runner
+runner_volumes:
+  - "{{ docker_base_dir }}/{{ runner_container_name}}/config:/etc/gitlab-runner"
+  - "{{ host_docker_socket }}:/var/run/docker.sock"
+
+runner_image: "gitlab/gitlab-runner:{{ runner_image_tag }}"
+runner_image_tag: "v15.1.1"
+
+register_command: sh -c "gitlab-runner register --non-interactive --executor 'docker' --docker-image 'alpine:latest' --url 'https://gitlab.com' --registration-token {{ runner_registration_token }} --description 'docker-runner' --tag-list 'docker' --run-untagged='true' --locked='false' --access-level='not_protected'" 
